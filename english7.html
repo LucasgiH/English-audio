@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<!-- dois audios caixa de texto e botao salvando clique audio e ultima palavra antes do espaco no banco -->
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Áudios e Registro de Ações</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      padding: 30px 20px 60px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      color: #333;
+      text-align: center;
+    }
+
+    /* 1. Área dos 2 ícones de áudio */
+    .audio-group {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      width: 100%;
+    }
+
+    .audio-icon-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 112px;
+      height: 112px;
+      background-color: #f8f9fa;
+      border: 3px solid #dee2e6;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: #495057;
+      user-select: none;
+    }
+
+    .audio-icon-btn:hover {
+      background-color: #e9ecef;
+      transform: translateY(-2px);
+    }
+
+    .audio-icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    .audio-icon-btn.selecionado {
+      border-color: #0056b3;
+      background-color: #e7f1ff;
+      color: #0056b3;
+      box-shadow: 0 0 12px rgba(0, 86, 179, 0.25);
+    }
+
+    .audio-icon-btn svg {
+      width: 38px;
+      height: 38px;
+      margin-bottom: 6px;
+      fill: currentColor;
+    }
+
+    .audio-label {
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    /* 2. Caixa de texto ajustada para caber com o botão no celular */
+    .input-section {
+      width: 100%;
+      border-top: 1px solid #eee;
+      padding-top: 22px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-section input {
+      flex: 1;
+      min-width: 0; /* Evita que o input estoure a largura e esmague o botão */
+      height: 44px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1.5px solid #ced4da;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .input-section input:focus {
+      border-color: #0056b3;
+    }
+
+    .input-section button {
+      flex-shrink: 0;
+      width: 46px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background-color: #0056b3;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .input-section button svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+    }
+
+    .input-section button:hover:not(:disabled) {
+      background-color: #004085;
+    }
+
+    .input-section button:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .input-section button:disabled {
+      opacity: 0.65;
+      cursor: default;
+    }
+
+    /* 3. Histórico salvo na planilha */
+    .historico-section {
+      width: 100%;
+      border-top: 1px solid #eee;
+      padding-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .historico-section h3 {
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    ul {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    li {
+      padding: 9px 12px;
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: #333;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!--<h2>Ouça o áudio</h2>-->
+
+    <!-- Ícones de Áudio -->
+    <div class="audio-group">
+      <div class="audio-icon-btn" id="btn-audio-1" onclick="selecionarETocar(1)">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+        <span class="audio-label">Audio 1</span>
+      </div>
+
+      <div class="audio-icon-btn" id="btn-audio-2" onclick="selecionarETocar(2)">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+        <span class="audio-label">Audio 2</span>
+      </div>
+    </div>
+
+    <!-- Arquivos de áudio da pasta do projeto -->
+    <audio id="player-1" src="i-think-i-can-really-care-for-you.mp4" preload="auto"></audio>
+    <audio id="player-2" src="don't-get-drawn-in-jack.mp4" preload="auto"></audio>
+
+    <!-- Caixa de texto com ícone de seta Enviar -->
+    <div class="input-section">
+      <input type="text" id="meuInput" placeholder="Digite sua resposta aqui...">
+      <button type="button" id="btnEnviar" title="Enviar" aria-label="Enviar">
+        <svg viewBox="0 0 24 24">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Visualização dos registros salvos na planilha 
+    <div class="historico-section">
+      <h3>Ações e Textos Salvos:</h3>
+      <ul id="listaTextos"></ul>
+    </div>-->
+  </div>
+
+  <script>
+    // Link de envio do Formulário (Google Forms -> Planilha)
+    const URL_FORMULARIO = "https://docs.google.com/forms/d/e/1FAIpQLSdNGgxmI--C1IBkCWXwYSV_86iz_HllF6_hjhGf0xwvMRlUyg/formResponse";
+    const ID_CAMPO_TEXTO = "entry.1157906860";
+
+    // Link de LEITURA da Planilha (TSV)
+    const URL_LEITURA_PLANILHA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkBByVULCxSfQbW9R6z2ewP7kn04aW2DKOJ8qLXufAOc5g5drIq6FVbrJZDj09MYNX5hoM1xniUj0S/pub?output=tsv";
+
+    const input = document.getElementById('meuInput');
+    const botao = document.getElementById('btnEnviar');
+    const lista = document.getElementById('listaTextos');
+
+    // Controla quantas palavras já foram enviadas automaticamente ao apertar espaço
+    let qtdPalavrasEnviadas = 0;
+
+    window.onload = carregarDados;
+
+    // Função reutilizável que envia qualquer ação ou texto para a planilha
+    function salvarNoBanco(registro, callbackFinal) {
+      const dados = new FormData();
+      dados.append(ID_CAMPO_TEXTO, registro);
+
+      fetch(URL_FORMULARIO, {
+        method: "POST",
+        mode: "no-cors",
+        body: dados
+      })
+      .then(() => {
+        setTimeout(carregarDados, 1000);
+        if (callbackFinal) callbackFinal(true);
+      })
+      .catch(erro => {
+        console.error("Erro ao salvar no banco:", erro);
+        if (callbackFinal) callbackFinal(false);
+      });
+    }
+
+    // Detecta quando o usuário digita espaço e salva a última palavra antes do espaço
+    input.addEventListener('input', () => {
+      const valor = input.value;
+      const palavras = valor.trim().split(/\s+/).filter(p => p.length > 0);
+
+      // Se o usuário apagou texto, ajusta o contador para permitir reenviar novas palavras
+      if (palavras.length < qtdPalavrasEnviadas) {
+        qtdPalavrasEnviadas = palavras.length;
+      }
+
+      // Se terminou com espaço e há uma palavra nova concluída antes desse espaço
+      if (valor.endsWith(' ') && palavras.length > qtdPalavrasEnviadas) {
+        const ultimaPalavra = palavras[palavras.length - 1];
+        qtdPalavrasEnviadas = palavras.length;
+        salvarNoBanco(ultimaPalavra);
+      }
+    });
+
+    // Seleciona o ícone, toca o áudio e registra o clique no banco de dados
+    function selecionarETocar(numeroAudio) {
+      const btn1 = document.getElementById('btn-audio-1');
+      const btn2 = document.getElementById('btn-audio-2');
+      const player1 = document.getElementById('player-1');
+      const player2 = document.getElementById('player-2');
+
+      player1.pause();
+      player1.currentTime = 0;
+      player2.pause();
+      player2.currentTime = 0;
+
+      btn1.classList.remove('selecionado');
+      btn2.classList.remove('selecionado');
+
+      if (numeroAudio === 1) {
+        btn1.classList.add('selecionado');
+        player1.play().catch(err => console.error("Erro ao tocar Áudio 1:", err));
+        salvarNoBanco("Clicou no Áudio 1");
+      } else if (numeroAudio === 2) {
+        btn2.classList.add('selecionado');
+        player2.play().catch(err => console.error("Erro ao tocar Áudio 2:", err));
+        salvarNoBanco("Clicou no Áudio 2");
+      }
+    }
+
+    // Envia a última palavra (caso o usuário não tenha apertado espaço antes de clicar em Enviar) e limpa a caixa
+    function enviarTexto() {
+      const texto = input.value.trim();
+      if (texto !== "") {
+        const palavras = texto.split(/\s+/).filter(p => p.length > 0);
+        const ultimaPalavra = palavras[palavras.length - 1];
+
+        botao.disabled = true;
+
+        if (palavras.length > qtdPalavrasEnviadas) {
+          salvarNoBanco(ultimaPalavra, (sucesso) => {
+            if (sucesso) {
+              input.value = "";
+              qtdPalavrasEnviadas = 0;
+            } else {
+              alert("Erro ao enviar.");
+            }
+            botao.disabled = false;
+          });
+        } else {
+          // Todas as palavras já foram enviadas ao digitar espaço; apenas limpa a caixa
+          input.value = "";
+          qtdPalavrasEnviadas = 0;
+          botao.disabled = false;
+        }
+      }
+    }
+
+    botao.addEventListener('click', enviarTexto);
+
+    // Permite enviar pressionando Enter dentro da caixa de texto
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        enviarTexto();
+      }
+    });
+
+    // Lê os dados da Planilha e exibe na tela
+    function carregarDados() {
+      lista.innerHTML = "<li>Carregando histórico...</li>";
+
+      fetch(URL_LEITURA_PLANILHA + "&cachebust=" + Date.now())
+        .then(res => res.text())
+        .then(textotsv => {
+          lista.innerHTML = "";
+          const linhas = textotsv.split(/\r?\n/);
+          let temDados = false;
+
+          for (let i = 1; i < linhas.length; i++) {
+            if (linhas[i].trim() === "") continue;
+
+            const colunas = linhas[i].split("\t");
+            if (colunas[1] && colunas[1].trim() !== "") {
+              const li = document.createElement('li');
+              li.textContent = colunas[1].trim();
+              lista.insertBefore(li, lista.firstChild);
+              temDados = true;
+            }
+          }
+
+          if (!temDados) {
+            lista.innerHTML = "<li>Nenhum registro salvo ainda.</li>";
+          }
+        })
+        .catch(err => {
+          lista.innerHTML = "<li>Erro ao carregar os dados. Verifique a publicação da planilha.</li>";
+          console.error(err);
+        });
+    }
+  </script>
+
+</body>
+</html>
