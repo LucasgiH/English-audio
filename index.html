@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- dois audios caixa de texto e botao salvando clique audio e ultima palavra antes do espaco no banco -->
+<!-- dois audios caixa de texto e botao salvando clique audio e ultima palavra antes do espaco no banco botao enviar salva tudo -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -310,31 +310,21 @@
       }
     }
 
-    // Envia a última palavra (caso o usuário não tenha apertado espaço antes de clicar em Enviar) e limpa a caixa
+    // Captura todo o texto digitado ao clicar em Enviar, salva no banco e limpa a caixa
     function enviarTexto() {
       const texto = input.value.trim();
       if (texto !== "") {
-        const palavras = texto.split(/\s+/).filter(p => p.length > 0);
-        const ultimaPalavra = palavras[palavras.length - 1];
-
         botao.disabled = true;
 
-        if (palavras.length > qtdPalavrasEnviadas) {
-          salvarNoBanco(ultimaPalavra, (sucesso) => {
-            if (sucesso) {
-              input.value = "";
-              qtdPalavrasEnviadas = 0;
-            } else {
-              alert("Erro ao enviar.");
-            }
-            botao.disabled = false;
-          });
-        } else {
-          // Todas as palavras já foram enviadas ao digitar espaço; apenas limpa a caixa
-          input.value = "";
-          qtdPalavrasEnviadas = 0;
+        salvarNoBanco(texto, (sucesso) => {
+          if (sucesso) {
+            input.value = "";
+            qtdPalavrasEnviadas = 0;
+          } else {
+            alert("Erro ao enviar.");
+          }
           botao.disabled = false;
-        }
+        });
       }
     }
 
@@ -349,6 +339,7 @@
 
     // Lê os dados da Planilha e exibe na tela
     function carregarDados() {
+      if (!lista) return;
       lista.innerHTML = "<li>Carregando histórico...</li>";
 
       fetch(URL_LEITURA_PLANILHA + "&cachebust=" + Date.now())
